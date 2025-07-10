@@ -35,61 +35,68 @@
   <h1>Clifton Station Departures</h1>
   <div id="departures">Loading...</div>
 
-  <script>
-    async function loadDepartures() {
-      const res = await fetch("departures.json");
-      const data = await res.json();
+<script>
+  async function loadDepartures() {
+    const res = await fetch("departures.json");
+    const data = await res.json();
 
-      const container = document.getElementById("departures");
-      container.innerHTML = "";
+    const container = document.getElementById("departures");
+    container.innerHTML = "";
 
-      const now = new Date();
+    const now = new Date();
 
-      data.forEach(train => {
-        const [hourStr, minuteStr] = train.departure_time.split(":");
-        const depDate = new Date(now);
-        depDate.setHours(parseInt(hourStr));
-        depDate.setMinutes(parseInt(minuteStr));
-        depDate.setSeconds(0);
+    data.forEach(train => {
+      const [hourStr, minuteStr] = train.departure_time.split(":");
+      const depDate = new Date(now);
+      depDate.setHours(parseInt(hourStr));
+      depDate.setMinutes(parseInt(minuteStr));
+      depDate.setSeconds(0);
+      depDate.setMilliseconds(0);
 
-        // Adjust for trains after midnight
-        if (depDate < now) depDate.setDate(depDate.getDate() + 1);
+      // Adjust for departures just after midnight
+      if (depDate < now) depDate.setDate(depDate.getDate() + 1);
 
-        const diffMs = depDate - now;
-        const diffMin = Math.round(diffMs / 60000);
+      const diffMs = depDate - now;
+      const diffMin = Math.round(diffMs / 60000);
 
-        // Format departure time
-        const hours = depDate.getHours();
-        const minutes = depDate.getMinutes().toString().padStart(2, "0");
-        const ampm = hours >= 12 ? "PM" : "AM";
-        const hr12 = hours % 12 || 12;
-        const depTimeStr = `${hr12}:${minutes} ${ampm}`;
+      // 🧹 Skip if departure is in the past (with 1 min buffer)
+      if (diffMin < 1) return;
 
-        // Display both if under an hour
-        let displayText = "";
-        if (diffMin < 60) {
-          displayText = `${train.trip_headsign} — ${depTimeStr} (in ${diffMin} min)`;
-        } else {
-          displayText = `${train.trip_headsign} — at ${depTimeStr}`;
-        }
+      const hours = depDate.getHours();
+      const minutes = depDate.getMinutes().toString().padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      const hr12 = hours % 12 || 12;
+      const depTimeStr = `${hr12}:${minutes} ${ampm}`;
 
-        const card = document.createElement("div");
-        card.className = "departure-card";
+      let displayText = "";
+      if (diffMin < 60) {
+        displayText = `${train.trip_headsign} — ${depTimeStr} (in ${diffMin} min)`;
+      } else {
+        displayText = `${train.trip_headsign} — at ${depTimeStr}`;
+      }
 
-        if (train.trip_headsign.toLowerCase().includes("hoboken")) {
-          card.style.backgroundColor = "#ffffff";
-          card.style.color = "#000000";
-        } else {
-          card.style.backgroundColor = "#666666";
-          card.style.color = "#ffffff";
-        }
+      const card = document.createElement("div");
+      card.className = "departure-card";
 
-        card.innerText = displayText;
-        container.appendChild(card);
-      });
+      if (train.trip_headsign.toLowerCase().includes("hoboken")) {
+        card.style.backgroundColor = "#ffffff";
+        card.style.color = "#000000";
+      } else {
+        card.style.backgroundColor = "#666666";
+        card.style.color = "#ffffff";
+      }
+
+      card.innerText = displayText;
+      container.appendChild(card);
+    });
+
+    // Fallback if nothing upcoming
+    if (container.innerHTML === "") {
+      container.innerText = "No more trains scheduled today.";
     }
+  }
 
-    loadDepartures();
-  </script>
+  loadDepartures();
+</script>
 </body>
 </html>
