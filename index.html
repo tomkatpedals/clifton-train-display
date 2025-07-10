@@ -34,69 +34,48 @@
 <body>
   <h1>Clifton Station Departures</h1>
   <div id="departures">Loading...</div>
-
 <script>
-  async function loadDepartures() {
-    const res = await fetch("departures.json");
-    const data = await res.json();
-
+  function renderDepartures(data) {
     const container = document.getElementById("departures");
-    container.innerHTML = "";
+    container.innerHTML = ""; // clear old entries
 
     const now = new Date();
 
-    data.forEach(train => {
-      const [hourStr, minuteStr] = train.departure_time.split(":");
-      const depDate = new Date(now);
-      depDate.setHours(parseInt(hourStr));
-      depDate.setMinutes(parseInt(minuteStr));
-      depDate.setSeconds(0);
-      depDate.setMilliseconds(0);
+    data.forEach(dep => {
+      const depTimeStr = dep.departure_time;
+      const depDate = new Date();
+      const [hour, minute] = depTimeStr.split(":").map(Number);
+      depDate.setHours(hour, minute, 0, 0);
 
-      // Adjust for departures just after midnight
-      if (depDate < now) depDate.setDate(depDate.getDate() + 1);
+      // ⛔ Skip if departure is in the past
+      if (depDate < now) return;
 
       const diffMs = depDate - now;
       const diffMin = Math.round(diffMs / 60000);
 
-      // 🧹 Skip if departure is in the past (with 1 min buffer)
-      if (diffMin < 1) return;
+      const options = { hour: 'numeric', minute: '2-digit' };
+      const timeStr = depDate.toLocaleTimeString([], options);
 
-      const hours = depDate.getHours();
-      const minutes = depDate.getMinutes().toString().padStart(2, "0");
-      const ampm = hours >= 12 ? "PM" : "AM";
-      const hr12 = hours % 12 || 12;
-      const depTimeStr = `${hr12}:${minutes} ${ampm}`;
-
-      let displayText = "";
+      let text = `HOBOKEN — at ${timeStr}`;
       if (diffMin < 60) {
-        displayText = `${train.trip_headsign} — ${depTimeStr} (in ${diffMin} min)`;
-      } else {
-        displayText = `${train.trip_headsign} — at ${depTimeStr}`;
+        text = `HOBOKEN — ${timeStr} (in ${diffMin} min)`;
       }
 
       const card = document.createElement("div");
-      card.className = "departure-card";
-
-      if (train.trip_headsign.toLowerCase().includes("hoboken")) {
-        card.style.backgroundColor = "#ffffff";
-        card.style.color = "#000000";
-      } else {
-        card.style.backgroundColor = "#666666";
-        card.style.color = "#ffffff";
-      }
-
-      card.innerText = displayText;
+      card.className = "card";
+      card.textContent = text;
       container.appendChild(card);
     });
 
-    // Fallback if nothing upcoming
-    if (container.innerHTML === "") {
-      container.innerText = "No more trains scheduled today.";
+    if (container.children.length === 0) {
+      container.innerHTML = "<p>No upcoming departures.</p>";
     }
   }
 
-  loadDepartures();
+  fetch('departures.json')
+    .then(response => response.json())
+    .then(data => renderDepartures(data));
 </script>
+
 </body>
 </html>
