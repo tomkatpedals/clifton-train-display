@@ -1,104 +1,119 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Clifton Departures</title>
-    <style>
-      body {
-        background-color: black;
-        color: white;
-        font-family: system-ui, sans-serif;
-        padding: 20px;
-        text-align: center;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <title>Clifton Departures</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: system-ui, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
 
-      h1 {
-        font-size: 1.5em;
-        margin-bottom: 20px;
-      }
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
 
-      .clock {
-        font-size: 2em;
-        margin-bottom: 10px;
-      }
+    .clock {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
 
-      .card {
-        background: white;
-        color: black;
-        padding: 10px;
-        margin: 10px auto;
-        width: 90%;
-        max-width: 400px;
-        border-radius: 10px;
-        font-size: 1.2em;
-        font-weight: bold;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="clock" id="clock">--:--</div>
-    <h1>Clifton Station Departures</h1>
-    <div id="departures">Loading...</div>
+    .card {
+      padding: 10px;
+      margin: 10px auto;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
 
-    <script>
-      function updateClock() {
-        const now = new Date();
-        const time = now.toLocaleTimeString([], {
-          hour: 'numeric',
-          minute: '2-digit'
-        });
-        document.getElementById("clock").textContent = time;
-      }
+    .hoboken {
+      background: white;
+      color: black;
+    }
 
-      setInterval(updateClock, 1000);
-      updateClock();
+    .other {
+      background: #444;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock" id="clock">--:--</div>
+  <h1>Clifton Station Departures</h1>
+  <div id="departures">Loading...</div>
 
-      function renderDepartures(data) {
-        const container = document.getElementById("departures");
-        container.innerHTML = "";
+  <script>
+    function updateClock() {
+      const now = new Date();
+      const time = now.toLocaleTimeString([], {
+        hour: 'numeric',
+        minute: '2-digit'
+      });
+      document.getElementById("clock").textContent = time;
+    }
 
-        const now = new Date();
+    setInterval(updateClock, 1000);
+    updateClock();
 
-        data.forEach(dep => {
-          const depTimeStr = dep.departure_time;
-          const depDate = new Date();
-          const [hour, minute] = depTimeStr.split(":").map(Number);
-          depDate.setHours(hour, minute, 0, 0);
+    function renderDepartures(data) {
+      const container = document.getElementById("departures");
+      container.innerHTML = "";
 
-          const diffMs = depDate - now;
-          const diffMin = Math.round(diffMs / 60000);
+      const now = new Date();
 
-          const options = { hour: 'numeric', minute: '2-digit' };
-          const timeStr = depDate.toLocaleTimeString([], options);
+      data.forEach(dep => {
+        const depTimeStr = dep.departure_time;
+        const headsign = dep.trip_headsign || "Unknown";
+        const depDate = new Date();
+        const [hour, minute] = depTimeStr.split(":").map(Number);
+        depDate.setHours(hour, minute, 0, 0);
 
-          let text = "";
+        const diffMs = depDate - now;
+        const diffMin = Math.round(diffMs / 60000);
 
-          if (diffMin < -1) {
-            return; // 🚫 Too far in the past — hide it
-          } else if (diffMin <= 0) {
-            text = `HOBOKEN — ${timeStr} (DEPARTED)`;
-          } else if (diffMin === 1) {
-            text = `HOBOKEN — ${timeStr} (ALL ABOARD!)`;
-          } else if (diffMin < 60) {
-            text = `HOBOKEN — ${timeStr} (in ${diffMin} min)`;
-          } else {
-            text = `HOBOKEN — at ${timeStr}`;
-          }
+        // Skip trains that departed more than 1 min ago
+        if (diffMin < -1) return;
 
-          const card = document.createElement("div");
-          card.className = "card";
-          card.textContent = text;
-          container.appendChild(card);
-        });
+        const timeStr = depDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
-        if (container.children.length === 0) {
-          container.innerHTML = "<p>No upcoming departures.</p>";
+        let countdown = "";
+        if (diffMin < 0) {
+          countdown = "(DEPARTED)";
+        } else if (diffMin === 0 || diffMin === 1) {
+          countdown = "(ALL ABOARD!)";
+        } else if (diffMin < 60) {
+          countdown = `(in ${diffMin} min)`;
         }
-      }
 
-      fetch('departures.json')
-        .then(response => response.json())
-        .then(data => renderDepartures(data));
-    </script>
-  </body>
+        const text = `${headsign} — ${timeStr} ${countdown}`;
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        if (headsign.toLowerCase().includes("hoboken")) {
+          card.classList.add("hoboken");
+        } else {
+          card.classList.add("other");
+        }
+
+        card.textContent = text;
+        container.appendChild(card);
+      });
+
+      if (container.children.length === 0) {
+        container.innerHTML = "<p>No upcoming departures.</p>";
+      }
+    }
+
+    fetch('departures.json')
+      .then(response => response.json())
+      .then(data => renderDepartures(data));
+  </script>
+</body>
 </html>
