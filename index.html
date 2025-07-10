@@ -37,7 +37,7 @@
 <script>
   function renderDepartures(data) {
     const container = document.getElementById("departures");
-    container.innerHTML = ""; // Clear old entries
+    container.innerHTML = ""; // clear old entries
 
     const now = new Date();
 
@@ -57,10 +57,7 @@
       const timeStr = depDate.toLocaleTimeString([], options);
 
       let text = `HOBOKEN — at ${timeStr}`;
-
-      if (diffMin <= 1) {
-        text = `HOBOKEN — ${timeStr} (ALL ABOARD!)`;
-      } else if (diffMin < 60) {
+      if (diffMin < 60) {
         text = `HOBOKEN — ${timeStr} (in ${diffMin} min)`;
       }
 
@@ -79,6 +76,7 @@
     .then(response => response.json())
     .then(data => renderDepartures(data));
 </script>
+
 
 
 
