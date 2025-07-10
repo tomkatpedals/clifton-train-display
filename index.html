@@ -61,9 +61,7 @@
           countdown = "DEPARTED";
         } else if (diffMin <= 1) {
           countdown = "ALL ABOARD!";
-        } else if (diffMin < 60) {
-          countdown = `(in ${diffMin} min)`;
-        }
+        } 
 
         const cardText = `${headsign} — ${timeStr} ${countdown}`;
 
