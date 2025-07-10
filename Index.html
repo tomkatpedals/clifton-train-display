@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Clifton Departures</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: black;
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    .train {
+      background-color: #ccc;
+      color: black;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .hoboken {
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Clifton Station Departures</h1>
+  <div id="departures">Loading...</div>
+
+  <script>
+    fetch("departures.json")
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("departures");
+        if (!data || data.length === 0) {
+          container.textContent = "No upcoming departures.";
+          return;
+        }
+
+        container.innerHTML = data.map(d => {
+          const isHoboken = (d.trip_headsign || "").toLowerCase().includes("hoboken");
+          return `<div class="train ${isHoboken ? 'hoboken' : ''}">
+            ${d.departure_time} → ${d.trip_headsign}
+          </div>`;
+        }).join("");
+      })
+      .catch(() => {
+        document.getElementById("departures").textContent = "Failed to load data.";
+      });
+  </script>
+</body>
+</html>
