@@ -37,7 +37,7 @@
 <script>
   function renderDepartures(data) {
     const container = document.getElementById("departures");
-    container.innerHTML = "";
+    container.innerHTML = ""; // Clear old entries
 
     const now = new Date();
 
@@ -47,24 +47,21 @@
       const [hour, minute] = depTimeStr.split(":").map(Number);
       depDate.setHours(hour, minute, 0, 0);
 
+      // ⛔ Skip if departure is in the past
+      if (depDate < now) return;
+
       const diffMs = depDate - now;
       const diffMin = Math.round(diffMs / 60000);
 
       const options = { hour: 'numeric', minute: '2-digit' };
       const timeStr = depDate.toLocaleTimeString([], options);
 
-      let text = "";
+      let text = `HOBOKEN — at ${timeStr}`;
 
-      if (diffMin < -1) {
-        return; // 🚫 More than 1 minute in the past — skip
-      } else if (diffMin <= 0) {
-        text = `HOBOKEN — ${timeStr} (DEPARTED)`;
-      } else if (diffMin === 1) {
+      if (diffMin <= 1) {
         text = `HOBOKEN — ${timeStr} (ALL ABOARD!)`;
       } else if (diffMin < 60) {
         text = `HOBOKEN — ${timeStr} (in ${diffMin} min)`;
-      } else {
-        text = `HOBOKEN — at ${timeStr}`;
       }
 
       const card = document.createElement("div");
@@ -82,6 +79,7 @@
     .then(response => response.json())
     .then(data => renderDepartures(data));
 </script>
+
 
 
 </body>
