@@ -34,62 +34,54 @@
   <div id="departures">Loading…</div>
 
   <script>
-    function renderDepartures(data) {
+  fetch("departures.json")
+    .then((res) => res.json())
+    .then((departures) => {
       const container = document.getElementById("departures");
-      container.innerHTML = "";
 
       const now = new Date();
+      departures.forEach((dep) => {
+        const departureUtc = new Date(dep.departure_time + "Z"); // force as UTC
+        const diffMin = Math.floor((departureUtc - now) / 60000);
 
-      data.forEach(dep => {
-        const depTimeStr = dep.departure_time;
-        const headsign = dep.trip_headsign || "Unknown";
-
-        const depDate = new Date();
-        const [hour, minute] = depTimeStr.split(":").map(Number);
-        depDate.setHours(hour, minute, 0, 0);
-
-        const diffMs = depDate - now;
-        const diffMin = Math.round(diffMs / 60000);
-
-        // Filter logic
+        // Skip past departures older than 1 min
         if (diffMin < -1) return;
 
-        const timeStr = depDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-
         let countdown = "";
+
         if (diffMin < 0) {
           countdown = "DEPARTED";
         } else if (diffMin <= 1) {
           countdown = "ALL ABOARD!";
-        } 
-
-        const cardText = `${headsign} — ${timeStr} ${countdown}`;
-
-        const card = document.createElement("div");
-        card.className = "card";
-
-        if (headsign.toLowerCase().includes("hoboken")) {
-          card.classList.add("hoboken");
-        } else {
-          card.classList.add("other");
         }
 
-        card.textContent = cardText;
+        const localTime = departureUtc.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        const isHoboken = dep.trip_headsign.toLowerCase().includes("hoboken");
+
+        const card = document.createElement("div");
+        card.className = "departure-card";
+        card.style.background = isHoboken ? "#ffffff" : "#eeeeee";
+        card.style.border = "1px solid #ccc";
+
+        const timeString = countdown
+          ? `${localTime} — ${countdown}`
+          : `${localTime}`;
+
+        card.innerHTML = `
+          <div><strong>${dep.trip_headsign}</strong></div>
+          <div>${timeString}</div>
+        `;
         container.appendChild(card);
       });
-
-      if (container.children.length === 0) {
-        container.innerHTML = "<div style='padding: 20px;'>No upcoming departures.</div>";
-      }
-    }
-
-    fetch("departures.json")
-      .then((res) => res.json())
-      .then((data) => renderDepartures(data))
-      .catch((err) => {
-        document.getElementById("departures").innerText = "Failed to load departures.";
-        console.error(err);
-      });
-  </script>
+    })
+    .catch((err) => {
+      document.getElementById("departures").innerText = "Failed to load departures.";
+      console.error("Fetch error:", err);
+    });
+</script>
 </body>
 </html>
