@@ -1,0 +1,30 @@
+name: Update departures.json
+
+on:
+  schedule:
+    - cron: '0 * * * *' # once every hour
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Fetch departures
+      run: |
+        curl -s "https://transit.land/api/v2/rest/stops/s-dr722xg334-clifton/departures?limit=10&next=21600&apikey=${{ secrets.TRANSITLAND_API_KEY }}" \
+        | jq '[.stops[0].departures[] | select(.trip.trip_headsign | test("hoboken"; "i")) | {
+            departure_time: (.departure_time // .departure.scheduled),
+            trip_headsign: .trip.trip_headsign
+          }]' > departures.json
+
+    - name: Commit & Push
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add departures.json
+        git commit -m "Update departures.json" || echo "No changes"
+        git push
