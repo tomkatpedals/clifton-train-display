@@ -32,7 +32,32 @@
   <h1>Clifton Station Departures</h1>
   <div id="departures">Loading…</div>
 
+  {% assign now = now | date: "%s" | plus: -14400 | date: "%Y-%m-%dT%H:%M:%S" %}
   <script>
+  function getAdjustedNow() {
+    const localNow = new Date();
+    const localOffsetMinutes = localNow.getTimezoneOffset(); // in minutes
+
+    // Eastern Time is UTC-5 in standard time, UTC-4 during daylight savings
+    const isLikelyEastern = (localOffsetMinutes === 240 || localOffsetMinutes === 300); 
+
+    if (isLikelyEastern) {
+      return localNow;
+    } else {
+      // Assume UTC time and apply -4 hour offset (daylight savings assumed)
+      const adjusted = new Date(localNow.getTime() - (4 * 60 * 60 * 1000));
+      return adjusted;
+    }
+  }
+
+  const now = getAdjustedNow();  // Use this throughout your script
+
+  async function loadDepartures() {
+    const response = await fetch('departures.json');
+    const data = await response.json();
+    
+    // now is already defined above
+    ...
     function renderDepartures(data) {
       const container = document.getElementById("departures");
       container.innerHTML = "";
