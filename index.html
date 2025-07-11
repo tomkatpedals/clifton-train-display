@@ -30,6 +30,7 @@
 </head>
 <body>
   <h1>Clifton Station Departures</h1>
+  <div id="last-refreshed" style="font-size: 0.9rem; color: #888; margin-bottom: 1rem;"></div>
   <div id="departures">Loading…</div>
 
  
@@ -50,7 +51,9 @@
 }
 
 const now = getAdjustedNow(); // Use this in the rest of your logic
-  
+// Display last refreshed time
+const lastRefreshedEl = document.getElementById("last-refreshed");
+lastRefreshedEl.textContent = `Last refreshed: ${now.toLocaleString([], { hour: 'numeric', minute: '2-digit' })}`;  
 
 // Log for debugging
 console.log("🕒 TRMNL system time:", new Date().toISOString());
