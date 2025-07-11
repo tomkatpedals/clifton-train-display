@@ -45,7 +45,7 @@
     return localNow;
   } else {
     // Assume UTC and shift to Eastern Daylight (UTC-4)
-    return new Date(localNow.getTime() - (3 * 60 * 60 * 1000));
+    return new Date(localNow.getTime() - (4 * 60 * 60 * 1000));
   }
 }
 
