@@ -2,44 +2,43 @@ name: update-token
 
 on:
   schedule:
-    - cron: '5 0 * * *'  # Every day at 12:05 AM
+    - cron: '5 0 * * *'  # Every day at 12:05am UTC
   workflow_dispatch:
 
 jobs:
-  fetch-token:
+  fetch-and-save-token:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-- name: Get token from NJ Transit
-  run: |
-    echo "Requesting token..."
-    response=$(curl -s -w "\n%{http_code}" -X POST "https://raildata.njtransit.com/api/GTFSRT/getToken" \
-      -H "accept: text/plain" \
-      -F "username=${{ secrets.NJTRANSIT_USER }}" \
-      -F "password=${{ secrets.NJTRANSIT_PASS }}")
+      - name: Get token from NJ Transit
+        run: |
+          echo "Requesting token..."
+          response=$(curl -s -w "\n%{http_code}" -X POST "https://raildata.njtransit.com/api/GTFSRT/getToken" \
+            -H "accept: text/plain" \
+            -F "username=${{ secrets.NJTRANSIT_USER }}" \
+            -F "password=${{ secrets.NJTRANSIT_PASS }}")
 
-    http_status=$(echo "$response" | tail -n1)
-    body=$(echo "$response" | sed '$d')
+          http_status=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
 
-    echo "HTTP status: $http_status"
-    echo "Response body: $body"
+          echo "HTTP status: $http_status"
+          echo "Response body: $body"
 
-    if [[ "$http_status" != "200" ]]; then
-      echo "Failed to get token: HTTP $http_status"
-      exit 1
-    fi
+          if [[ "$http_status" != "200" ]]; then
+            echo "Failed to get token: HTTP $http_status"
+            exit 1
+          fi
 
-    if [[ -z "$body" ]]; then
-      echo "Token response is empty!"
-      exit 1
-    fi
+          if [[ -z "$body" ]]; then
+            echo "Token response is empty!"
+            exit 1
+          fi
 
-    echo "$body" > token.json
-    echo "Token saved to token.json"
-
+          echo "$body" > token.json
+          echo "Token saved to token.json"
 
       - name: Commit token file
         run: |
