@@ -16,29 +16,10 @@ jobs:
       - name: Get token from NJ Transit
         run: |
           echo "Requesting token..."
-          response=$(curl -s -w "\n%{http_code}" -X POST "https://raildata.njtransit.com/api/GTFSRT/getToken" \
-            -H "accept: text/plain" \
-            -F "username=${{ secrets.NJTRANSIT_USER }}" \
-            -F "password=${{ secrets.NJTRANSIT_PASS }}")
-
-          http_status=$(echo "$response" | tail -n1)
-          body=$(echo "$response" | sed '$d')
-
-          echo "HTTP status: $http_status"
-          echo "Response body: $body"
-
-          if [[ "$http_status" != "200" ]]; then
-            echo "Failed to get token: HTTP $http_status"
-            exit 1
-          fi
-
-          if [[ -z "$body" ]]; then
-            echo "Token response is empty!"
-            exit 1
-          fi
-
-          echo "$body" > token.json
-          echo "Token saved to token.json"
+          curl -v -X POST "https://raildata.njtransit.com/api/GTFSRT/getToken" \
+          -H "accept: text/plain" \
+          -F "username=${{ secrets.NJTRANSIT_USER }}" \
+          -F "password=${{ secrets.NJTRANSIT_PASS }}"
 
       - name: Commit token file
         run: |
