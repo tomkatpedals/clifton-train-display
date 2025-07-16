@@ -18,7 +18,7 @@ payload = {
 
 print("Requesting token...")
 
-response = requests.post(auth_url, data=payload, auth=(username, password), headers=headers)
+response = requests.post(url, data=payload, auth=(username, password), headers=headers)
 
 if response.status_code == 200:
     token_data = response.json()
