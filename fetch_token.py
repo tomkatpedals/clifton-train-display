@@ -5,7 +5,8 @@ import os
 username = os.getenv("NJTRANSIT_USERNAME")
 password = os.getenv("NJTRANSIT_PASSWORD")
 
-auth_url = "https://api.njtransit.com/oauth2/token"
+url = "https://api.njtransit.com/oauth2/token"
+
 
 headers = {
     "Content-Type": "application/x-www-form-urlencoded"
