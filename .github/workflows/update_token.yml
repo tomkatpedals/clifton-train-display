@@ -1,0 +1,36 @@
+name: Update NJTRANSIT Token
+
+on:
+  schedule:
+    - cron: '7 0 * * *'  # Every day at 12:07 AM UTC (8:07 PM ET in summer)
+  workflow_dispatch:     # Allow manual trigger
+
+jobs:
+  update-token:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run token fetch script
+        env:
+          NJTRANSIT_USERNAME: ${{ secrets.NJTRANSIT_USERNAME }}
+          NJTRANSIT_PASSWORD: ${{ secrets.NJTRANSIT_PASSWORD }}
+        run: python fetch_token.py
+
+      - name: Commit and push token.json
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add token.json
+          git commit -m "Update NJ TRANSIT token"
+          git push
