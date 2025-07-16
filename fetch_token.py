@@ -1,30 +1,22 @@
-import requests
-import json
 import os
+import requests
 
 username = os.getenv("NJTRANSIT_USERNAME")
 password = os.getenv("NJTRANSIT_PASSWORD")
 
-url = "https://raildata.njtransit.com/api/GTFSRT/getToken"
-
-
-headers = {
-    "Content-Type": "application/x-www-form-urlencoded"
-}
-
-payload = {
-    "grant_type": "client_credentials"
-}
-
 print("Requesting token...")
 
-response = requests.post(url, data=payload, auth=(username, password), headers=headers)
+response = requests.post(
+    "https://raildata.njtransit.com/api/GTFSRT/getToken",
+    headers={"accept": "text/plain"},
+    files={"username": (None, username), "password": (None, password)},
+)
 
-if response.status_code == 200:
-    token_data = response.json()
-    with open("token.json", "w") as f:
-        json.dump(token_data, f, indent=2)
-    print("Token saved to token.json")
+if response.status_code == 200 and response.text.strip():
+    token = response.text.strip()
+    print("Got token:", token)
+    with open("token.txt", "w") as f:
+        f.write(token)
 else:
-    print("Failed to get token:", response.status_code, response.text)
-    raise SystemExit(1)
+    print(f"Failed to get token: {response.status_code} {response.text}")
+    exit(1)
