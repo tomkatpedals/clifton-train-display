@@ -5,7 +5,7 @@ import os
 username = os.getenv("NJTRANSIT_USERNAME")
 password = os.getenv("NJTRANSIT_PASSWORD")
 
-url = "https://api.njtransit.com/oauth2/token"
+url = "https://raildata.njtransit.com/api/GTFSRT/getToken"
 
 
 headers = {
