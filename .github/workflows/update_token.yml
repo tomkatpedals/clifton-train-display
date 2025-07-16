@@ -1,36 +1,38 @@
-name: Update NJTRANSIT Token
+name: update-token
 
 on:
   schedule:
-    - cron: '7 0 * * *'  # Every day at 12:07 AM UTC (8:07 PM ET in summer)
-  workflow_dispatch:     # Allow manual trigger
+    - cron: '5 0 * * *'  # Every day at 12:05 AM
+  workflow_dispatch:
 
 jobs:
-  update-token:
+  fetch-token:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+      - name: Get token from NJ Transit
+        run: |
+          echo "Requesting token..."
+          response=$(curl -s -X POST "https://raildata.njtransit.com/api/GTFSRT/getToken" \
+            -H "accept: text/plain" \
+            -F "username=${{ secrets.NJTRANSIT_USER }}" \
+            -F "password=${{ secrets.NJTRANSIT_PASS }}")
 
-      - name: Install dependencies
-        run: pip install requests
+          if [[ -z "$response" ]]; then
+            echo "Failed to get token: empty response"
+            exit 1
+          fi
 
-      - name: Run token fetch script
-        env:
-          NJTRANSIT_USERNAME: ${{ secrets.NJTRANSIT_USERNAME }}
-          NJTRANSIT_PASSWORD: ${{ secrets.NJTRANSIT_PASSWORD }}
-        run: python fetch_token.py
+          echo "$response" > token.json
+          echo "Token saved to token.json"
 
-      - name: Commit and push token.json
+      - name: Commit token file
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add token.json
-          git commit -m "Update NJ TRANSIT token"
+          git commit -m "Update token.json"
           git push
