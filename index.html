@@ -67,7 +67,7 @@
 
           div.className = `departure ${statusClass}`;
           div.innerHTML = `
-            <div class="time">${dep.scheduled_time}</div>
+            <div class="time">${formatTime(dep.scheduled_time)}</div>
             <div class="details">
               ${dep.status || "Scheduled"}
               ${dep.estimated_arrival_minutes != null ? `&middot; ETA: ${dep.estimated_arrival_minutes} min` : ""}
@@ -79,6 +79,14 @@
         document.getElementById("departures").innerText = "Failed to load departures.";
       }
     }
+function formatTime(hhmm) {
+  const [hourStr, minuteStr] = hhmm.split(":");
+  let hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12; // convert 0 to 12 for midnight
+  return `${hour}:${minute.toString().padStart(2, "0")} ${ampm}`;
+}
 
     loadDepartures();
   </script>
