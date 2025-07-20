@@ -1,1 +1,21 @@
-
+[
+  {
+    "trip_id": "1804621",
+    "route_id": "6",
+    "departure_time": "15:50",
+    "epoch": 1753041000,
+    "delay_minutes": 0,
+    "status": "On time",
+    "vehicle_position": {
+      "latitude": 41.11370086669922,
+      "longitude": -74.15350341796875,
+      "current_status": 2,
+      "status_label": "In transit",
+      "stop_sequence": 0,
+      "timestamp": "2025-07-20T14:45:03",
+      "distance_to_clifton_miles": 16.98,
+      "estimated_arrival_minutes": 34,
+      "last_updated_seconds_ago": null
+    }
+  }
+]
