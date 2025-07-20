@@ -1,117 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Clifton Departures</title>
-<style>
-  body {
-    font-family: sans-serif;
-    margin: 0;
-    padding: 1rem;
-    background: #ffffff; /* white background */
-  }
-
-  h1 {
-    text-align: left;
-    margin-bottom: 1rem;
-  }
-
-  .card {
-    width: 100%;
-    border: 1px solid #ccc; /* thin gray border */
-    padding: 0.75rem 1rem;
-    margin-bottom: 0.5rem;
-    background-color: #ffffff;
-    text-align: left;
-    font-size: 1.25rem;
-    box-sizing: border-box;
-  }
-</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clifton NJ Train Departures</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 500px;
+    }
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 1em;
+      text-align: center;
+    }
+    .departure {
+      border-top: 1px solid #ddd;
+      padding: 1em 0;
+    }
+    .departure:first-of-type {
+      border-top: none;
+    }
+    .time {
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+    .status {
+      margin-top: 0.3em;
+      color: #333;
+    }
+    .late {
+      color: #d9534f;
+    }
+    .ontime {
+      color: #5cb85c;
+    }
+    .scheduled {
+      color: #999;
+    }
+  </style>
 </head>
 <body>
-  <h1>Clifton Station Departures</h1>
-  <div id="last-refreshed" style="font-size: 14px; color: #444; margin-bottom: 1rem; padding-left: 20px;"></div>
-  <div id="departures">Loading…</div>
+  <div class="container">
+    <h1>Upcoming Departures to Hoboken</h1>
+    <div id="departures"></div>
+  </div>
 
- 
   <script>
-  function getAdjustedNow() {
-  const localNow = new Date();
-  const localOffsetMinutes = localNow.getTimezoneOffset(); // in minutes
+    fetch('upcoming_departures.json')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('departures');
+        data.forEach(dep => {
+          const div = document.createElement('div');
+          div.className = 'departure';
 
-  // Eastern Time is UTC-5 (standard) or UTC-4 (daylight)
-  const isEastern = (localOffsetMinutes === 240 || localOffsetMinutes === 300);
+          const statusClass = dep.status.includes("late") ? "late" : dep.status === "On time" ? "ontime" : "scheduled";
 
-  if (isEastern) {
-    return localNow;
-  } else {
-    // Assume UTC and shift to Eastern Daylight (UTC-4)
-    return new Date(localNow.getTime() - (4 * 60 * 60 * 1000));
-  }
-}
-
-const now = getAdjustedNow(); // Use this in the rest of your logic
-// Display last refreshed time
-const lastRefreshedEl = document.getElementById("last-refreshed");
-lastRefreshedEl.textContent = `Last refreshed: ${now.toLocaleString([], { hour: 'numeric', minute: '2-digit' })}`;  
-
-// Log for debugging
-console.log("🕒 TRMNL system time:", new Date().toISOString());
-console.log("🕒 Adjusted Eastern time:", now.toISOString());
-    function renderDepartures(data) {
-      const container = document.getElementById("departures");
-      container.innerHTML = "";
-
-      
-
-      data.forEach(dep => {
-        const depTimeStr = dep.departure_time;
-        const headsign = dep.trip_headsign || "Unknown";
-
-        const depDate = new Date();
-        const [hour, minute] = depTimeStr.split(":").map(Number);
-        depDate.setHours(hour, minute, 0, 0);
-
-        const diffMs = depDate - now;
-        const diffMin = Math.round(diffMs / 60000);
-
-        // Filter logic
-        if (diffMin < -1) return;
-
-        const timeStr = depDate.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-
-        let countdown = "";
-        if (diffMin < 0) {
-          countdown = "(DEPARTED)";
-        } else if (diffMin <= 1) {
-          countdown = "(ALL ABOARD!)";
-        } 
-
-        const cardText = `${headsign} — ${timeStr} ${countdown}`;
-
-        const card = document.createElement("div");
-        card.className = "card";
-
-        if (headsign.toLowerCase().includes("hoboken")) {
-          card.classList.add("hoboken");
-        } else {
-          card.classList.add("other");
-        }
-
-        card.textContent = cardText;
-        container.appendChild(card);
-      });
-
-      if (container.children.length === 0) {
-        container.innerHTML = "<div style='padding: 20px;'>No upcoming departures.</div>";
-      }
-    }
-
-    fetch("departures.json")
-      .then((res) => res.json())
-      .then((data) => renderDepartures(data))
-      .catch((err) => {
-        document.getElementById("departures").innerText = "Failed to load departures.";
+          div.innerHTML = `
+            <div class="time">${dep.scheduled_time}</div>
+            <div class="status ${statusClass}">
+              ${dep.status}
+              ${dep.estimated_arrival_minutes !== null ? ` - ETA: ${dep.estimated_arrival_minutes} min` : ''}
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      })
+      .catch(err => {
+        document.getElementById('departures').innerText = 'Error loading departures.';
         console.error(err);
       });
   </script>
