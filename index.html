@@ -53,6 +53,11 @@
       font-size: 0.9em;
       color: #333;
     }
+    .no-trains {
+      font-size: 1.2em;
+      color: #888;
+      margin-top: 1em;
+    }
   </style>
 </head>
 <body>
@@ -69,6 +74,11 @@
 
         const container = document.getElementById("departures");
         container.innerHTML = "";
+
+        if (data.length === 0) {
+          container.innerHTML = '<div class="no-trains">No more trains today</div>';
+          return;
+        }
 
         data.forEach(dep => {
           const div = document.createElement("div");
