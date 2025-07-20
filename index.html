@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta http-equiv="refresh" content="60">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="60">
   <title>Clifton Train Departures</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #111;
-      color: #eee;
+      background: #fff;
+      color: #000;
       margin: 0;
       padding: 0;
     }
@@ -25,16 +25,24 @@
     .departure {
       padding: 0.8em;
       margin-bottom: 0.5em;
-      background: #222;
-      border-left: 6px solid #555;
+      border-left: 6px solid #ccc;
     }
     .on-time {
+      background: #ffffff;
       border-color: #4caf50;
     }
     .delayed {
+      background: #fdd;
       border-color: #f44336;
     }
     .scheduled {
+      background: repeating-linear-gradient(
+        45deg,
+        #eee,
+        #eee 10px,
+        #ddd 10px,
+        #ddd 20px
+      );
       border-color: #999;
     }
     .time {
@@ -43,13 +51,13 @@
     }
     .details {
       font-size: 0.9em;
-      color: #ccc;
+      color: #333;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Clifton Departures</h1>
+    <h1>Next Departures from Clifton</h1>
     <div id="departures"></div>
   </div>
 
@@ -64,15 +72,19 @@
 
         data.forEach(dep => {
           const div = document.createElement("div");
-          const statusClass = dep.status?.includes("late") ? "delayed" : (dep.status === "On time" ? "on-time" : "scheduled");
+          let statusText = dep.status;
+
+          // Normalize status if it's "0 minutes late"
+          if (statusText === "0 minutes late") {
+            statusText = "On time";
+          }
+
+          const statusClass = statusText?.includes("late") ? "delayed" : (statusText === "On time" ? "on-time" : "scheduled");
 
           div.className = `departure ${statusClass}`;
           div.innerHTML = `
-            <div class="time">${formatTime(dep.scheduled_time)}</div>
-            <div class="details">
-              ${dep.status || "Scheduled"}
-           
-            </div>
+            <div class="time">${dep.scheduled_time}</div>
+            <div class="details">${statusText}</div>
           `;
           container.appendChild(div);
         });
@@ -80,14 +92,6 @@
         document.getElementById("departures").innerText = "Failed to load departures.";
       }
     }
-function formatTime(hhmm) {
-  const [hourStr, minuteStr] = hhmm.split(":");
-  let hour = parseInt(hourStr, 10);
-  const minute = parseInt(minuteStr, 10);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  hour = hour % 12 || 12; // convert 0 to 12 for midnight
-  return `${hour}:${minute.toString().padStart(2, "0")} ${ampm}`;
-}
 
     loadDepartures();
   </script>
