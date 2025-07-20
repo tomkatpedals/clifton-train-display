@@ -70,7 +70,7 @@
             <div class="time">${formatTime(dep.scheduled_time)}</div>
             <div class="details">
               ${dep.status || "Scheduled"}
-              ${dep.estimated_arrival_minutes != null ? `&middot; ETA: ${dep.estimated_arrival_minutes} min` : ""}
+           
             </div>
           `;
           container.appendChild(div);
