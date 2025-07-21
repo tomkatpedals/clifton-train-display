@@ -41,10 +41,15 @@
 
 .scheduled {
   background-color: #f2f2f2;
-  background-image: radial-gradient(#ccc 5%, transparent 6%);
-  background-size: 8px 8px;
-  background-repeat: repeat;
-  border-left: 6px solid #000; /* solid black for scheduled */
+  background-image: repeating-linear-gradient(
+    45deg,
+    #ccc,
+    #ccc 6px,
+    #f2f2f2 6px,
+    #f2f2f2 12px
+  );
+  background-size: 12px 12px;
+  border-left: 6px solid #000;
 }
 
 
