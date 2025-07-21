@@ -26,6 +26,7 @@
       padding: 0.8em;
       margin-bottom: 0.5em;
       border-left: 6px solid #ccc;
+      border-bottom: 1px solid #ccc;
     }
     .on-time {
       background: #ffffff;
@@ -87,11 +88,10 @@
           return;
         }
 
-        data.forEach(dep => {
+        data.forEach((dep, index) => {
           const div = document.createElement("div");
           let statusText = dep.status;
 
-          // Normalize status if it's "0 minutes late"
           if (statusText === "0 minutes late") {
             statusText = "On time";
           }
