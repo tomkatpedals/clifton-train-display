@@ -92,11 +92,11 @@
           const div = document.createElement("div");
           let statusText = dep.status;
 
-          if (statusText === "0 minutes late") {
+          if (statusText === "0 minutes late" || statusText === "0 min late") {
             statusText = "On time";
           }
 
-          const statusClass = statusText?.includes("late") ? "delayed" : (statusText === "On time" ? "on-time" : "scheduled");
+          const statusClass = statusText?.toLowerCase().includes("late") ? "delayed" : (statusText === "On time" ? "on-time" : "scheduled");
 
           div.className = `departure ${statusClass}`;
           div.innerHTML = `
