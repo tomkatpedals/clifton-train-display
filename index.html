@@ -6,6 +6,18 @@
   <meta http-equiv="refresh" content="60">
   <title>Clifton Train Departures</title>
   <style>
+      .departure .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .departure .time,
+  .departure .details {
+    flex: 1;
+    font-size: 1.1em;
+    padding: 0 0.5em;
+  }
     body {
       font-family: sans-serif;
       background: #fff;
@@ -30,29 +42,29 @@
       box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
       border: 1px solid black;
       text-shadow:
-    -1px -1px 0 white,
-     1px -1px 0 white,
-    -1px  1px 0 white,
-     1px  1px 0 white;
+    -2px -2px 0 white,
+     2px -2px 0 white,
+    -2px  2px 0 white,
+     2px  2px 0 white;
     }
     .on-time {
   background: #ffffff;
   border-left: 6px solid #666; /* TRMNL-friendly gray */
      text-shadow:
-    -1px -1px 0 white,
-     1px -1px 0 white,
-    -1px  1px 0 white,
-     1px  1px 0 white;    
+    -2px -2px 0 white,
+     2px -2px 0 white,
+    -2px  2px 0 white,
+     2px  2px 0 white; 
 }
 
 .delayed {
   background: #fdd;
   border-left: 6px solid #f44336;
        text-shadow:
-    -1px -1px 0 white,
-     1px -1px 0 white,
-    -1px  1px 0 white,
-     1px  1px 0 white;  
+    -2px -2px 0 white,
+     2px -2px 0 white,
+    -2px  2px 0 white,
+     2px  2px 0 white;
 }
 
 .scheduled {
@@ -63,10 +75,10 @@
   color: #000;
   border-left: 6px solid black;
        text-shadow:
-    -1px -1px 0 white,
-     1px -1px 0 white,
-    -1px  1px 0 white,
-     1px  1px 0 white;  
+    -2px -2px 0 white,
+     2px -2px 0 white,
+    -2px  2px 0 white,
+     2px  2px 0 white;
 }
 
 
@@ -78,19 +90,19 @@
       font-weight: bold;
         color: solid black;
           text-shadow:
-    -1px -1px 0 white,
-     1px -1px 0 white,
-    -1px  1px 0 white,
-     1px  1px 0 white;
+    -2px -2px 0 white,
+     2px -2px 0 white,
+    -2px  2px 0 white,
+     2px  2px 0 white;
     }
     .details {
       font-size: 1.0em;
       color: #333;
         text-shadow:
-    -1px -1px 0 white,
-     1px -1px 0 white,
-    -1px  1px 0 white,
-     1px  1px 0 white;
+    -2px -2px 0 white,
+     2px -2px 0 white,
+    -2px  2px 0 white,
+     2px  2px 0 white;
     }
     .no-trains {
       font-size: 1.6em;
@@ -137,9 +149,11 @@
           const statusClass = statusText?.toLowerCase().includes("late") ? "delayed" : (statusText === "On time" ? "on-time" : "scheduled");
 
           div.className = `departure ${statusClass}`;
-          div.innerHTML = `
-            <div class="time">${convertTo12Hour(dep.scheduled_time)}</div>
-            <div class="details">${statusText}</div>
+div.innerHTML = `
+  <div class="row">
+    <div class="time">${convertTo12Hour(dep.scheduled_time)}</div>
+    <div class="details">${statusText}</div>
+  </div>
           `;
           container.appendChild(div);
         });
