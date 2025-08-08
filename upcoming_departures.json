@@ -2,8 +2,8 @@
   {
     "scheduled_time": "15:29",
     "trip_id": "1804075",
-    "status": "1 min late",
-    "delay_minutes": 1,
+    "status": "On time",
+    "delay_minutes": 0,
     "estimated_arrival_minutes": 19
   },
   {
