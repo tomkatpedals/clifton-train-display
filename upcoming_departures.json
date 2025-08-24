@@ -2,15 +2,15 @@
   {
     "scheduled_time": "12:50",
     "trip_id": "1804618",
-    "status": "13 min late",
-    "delay_minutes": 13,
+    "status": "15 min late",
+    "delay_minutes": 15,
     "estimated_arrival_minutes": 24
   },
   {
     "scheduled_time": "13:50",
-    "trip_id": null,
-    "status": "Scheduled",
-    "delay_minutes": null,
+    "trip_id": "1804619",
+    "status": "On time",
+    "delay_minutes": 0,
     "estimated_arrival_minutes": null
   },
   {
