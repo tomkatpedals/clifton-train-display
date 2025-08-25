@@ -2,9 +2,9 @@
   {
     "scheduled_time": "05:30",
     "trip_id": "1804055",
-    "status": "3 min late",
-    "delay_minutes": 3,
-    "estimated_arrival_minutes": 17
+    "status": "4 min late",
+    "delay_minutes": 4,
+    "estimated_arrival_minutes": 14
   },
   {
     "scheduled_time": "05:58",
