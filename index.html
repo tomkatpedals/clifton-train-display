@@ -152,13 +152,13 @@ data.forEach((dep, index) => {
 
   if (statusText?.toLowerCase().includes("late")) {
     statusClass = "delayed";
-    bgClass = "bg--gray-7";
+    bgClass = "bg--gray-75";
   } else if (statusText === "On time") {
     statusClass = "on-time";
-    bgClass = "bg--gray-2";
+    bgClass = "bg--white";
   } else {
     statusClass = "scheduled";
-    bgClass = "bg--gray-5";
+    bgClass = "bg--gray-55";
   }
 
   div.className = `departure ${statusClass} ${bgClass} border--black text--black`;
