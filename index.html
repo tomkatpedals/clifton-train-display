@@ -139,18 +139,30 @@
           return;
         }
 
-        data.forEach((dep, index) => {
-          const div = document.createElement("div");
-          let statusText = dep.status;
+data.forEach((dep, index) => {
+  const div = document.createElement("div");
+  let statusText = dep.status;
 
-          if (!statusText || statusText.toLowerCase().includes("0 min") || statusText.toLowerCase().includes("0 minutes")) {
-            statusText = "On time";
-          }
+  if (!statusText || statusText.toLowerCase().includes("0 min") || statusText.toLowerCase().includes("0 minutes")) {
+    statusText = "On time";
+  }
 
-          const statusClass = statusText?.toLowerCase().includes("late") ? "delayed" : (statusText === "On time" ? "on-time" : "scheduled");
+  let statusClass = "";
+  let bgClass = "";
 
-          const bgClass = statusClass === "scheduled" ? "bg--gray-5" : "";
-div.className = `departure ${statusClass} ${bgClass}`;
+  if (statusText?.toLowerCase().includes("late")) {
+    statusClass = "delayed";
+    bgClass = "bg--gray-7";
+  } else if (statusText === "On time") {
+    statusClass = "on-time";
+    bgClass = "bg--gray-2";
+  } else {
+    statusClass = "scheduled";
+    bgClass = "bg--gray-5";
+  }
+
+  div.className = `departure ${statusClass} ${bgClass} border--black text--black`;
+
 
 div.innerHTML = `
   <div class="row">
