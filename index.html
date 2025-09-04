@@ -87,7 +87,6 @@
 }
 
 .scheduled {
-  bg--gray-5;
   border-left: 6px solid black;
 
 }
@@ -151,7 +150,9 @@
 
           const statusClass = statusText?.toLowerCase().includes("late") ? "delayed" : (statusText === "On time" ? "on-time" : "scheduled");
 
-          div.className = `departure ${statusClass}`;
+          const bgClass = statusClass === "scheduled" ? "bg--gray-5" : "";
+div.className = `departure ${statusClass} ${bgClass}`;
+
 div.innerHTML = `
   <div class="row">
     <div class="time">${convertTo12Hour(dep.scheduled_time)}</div>
