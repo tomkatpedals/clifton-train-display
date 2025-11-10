@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "departure_time": "05:30:00",
+    "trip_headsign": "HOBOKEN"
+  }
+]
