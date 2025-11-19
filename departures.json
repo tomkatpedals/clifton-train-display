@@ -1,9 +1,5 @@
 [
   {
-    "departure_time": "11:36:00",
-    "trip_headsign": "HOBOKEN"
-  },
-  {
     "departure_time": "12:37:00",
     "trip_headsign": "HOBOKEN"
   },
@@ -21,6 +17,10 @@
   },
   {
     "departure_time": "16:00:00",
+    "trip_headsign": "HOBOKEN"
+  },
+  {
+    "departure_time": "16:48:00",
     "trip_headsign": "HOBOKEN"
   }
 ]
