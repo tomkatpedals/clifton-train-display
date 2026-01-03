@@ -11,7 +11,7 @@
     "trip_id": "1804618",
     "status": "On time",
     "delay_minutes": 0,
-    "estimated_arrival_minutes": null
+    "estimated_arrival_minutes": 34
   },
   {
     "scheduled_time": "13:50",
