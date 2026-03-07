@@ -4,7 +4,7 @@
     "trip_id": "1804035",
     "status": "15 min late",
     "delay_minutes": 15,
-    "estimated_arrival_minutes": 5
+    "estimated_arrival_minutes": 3
   },
   {
     "scheduled_time": "19:53",
