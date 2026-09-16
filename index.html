@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Clifton Train Departures</title>
+
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #fff;
+      color: #000;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 100%;
+      padding: 1em;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 0.35em;
+    }
+
+    .departure {
+      font-size: 24px;
+      padding: 0.5em;
+      margin-bottom: 0.25em;
+      border-radius: 8px;
+      border: 1px solid black;
+      border-left: 6px solid #666;
+      background: #fff;
+      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .departure .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .departure .time {
+      flex: none;
+      min-width: 140px;
+      font-size: 32px;
+      font-weight: bold;
+      color: black;
+    }
+
+    .departure .details {
+      flex: 1;
+      text-align: right;
+      font-size: 1em;
+      color: #333;
+    }
+
+    .no-trains {
+      font-size: 1.6em;
+      color: #888;
+      margin-top: 1em;
+    }
+
+    .error {
+      font-size: 1.4em;
+      color: #900;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Clifton Departures</h1>
+    <div id="departures"></div>
+  </div>
+
+  <script>
+    function convertTo12Hour(timeStr) {
+      if (!timeStr) {
+        return "--:--";
+      }
+
+      const parts = timeStr.split(":");
+
+      const hour = Number(parts[0]);
+      const minute = Number(parts[1]);
+
+      const period = hour >= 12 ? "PM" : "AM";
+      const hour12 = hour % 12 || 12;
+
+      return `${hour12}:${minute.toString().padStart(2, "0")} ${period}`;
+    }
+
+
+    async function loadDepartures() {
+      const container = document.getElementById("departures");
+
+      try {
+        const response = await fetch(
+          `departures.json?t=${Date.now()}`,
+          {
+            cache: "no-store"
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `HTTP error ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+
+        console.log(
+          "Departure data received:",
+          new Date().toLocaleTimeString(),
+          data
+        );
+
+        container.innerHTML = "";
+
+        if (!Array.isArray(data) || data.length === 0) {
+          container.innerHTML =
+            '<div class="no-trains">No more trains today</div>';
+
+          return;
+        }
+
+
+        data.forEach((dep) => {
+
+          const div = document.createElement("div");
+
+          div.className = "departure";
+
+          div.innerHTML = `
+            <div class="row">
+
+              <div class="time">
+                ${convertTo12Hour(dep.departure_time)}
+              </div>
+
+              <div class="details">
+                ${dep.trip_headsign || "HOBOKEN"}
+              </div>
+
+            </div>
+          `;
+
+          container.appendChild(div);
+        });
+
+      }
+      catch (error) {
+
+        console.error(
+          "Failed to load departures:",
+          error
+        );
+
+        if (!container.innerHTML.trim()) {
+          container.innerHTML =
+            '<div class="error">Failed to load departures.</div>';
+        }
+      }
+    }
+
+
+    loadDepartures();
+
+    setInterval(loadDepartures, 30000);
+
+  </script>
+
+</body>
+</html>
+
