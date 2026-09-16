@@ -1,34 +1,13 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="60">
+
   <title>Clifton Train Departures</title>
+
   <style>
-.departure .row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0;
-  padding: 0;
-}
-
-.departure .time {
-  flex: none;
-  min-width: 100px;
-  font-size: 32px;
-  font-weight: bold;
-}
-
-.departure .details {
-  flex: 1;
-  text-align: right;
-  font-size: 1.0em;
-  color: #333;
-}
-    
-
     body {
       font-family: sans-serif;
       background: #fff;
@@ -36,84 +15,99 @@
       margin: 0;
       padding: 0;
     }
+
     .container {
       width: 100%;
       padding: 1em;
       box-sizing: border-box;
     }
+
     h1 {
-      font-size: 2.0em;
+      font-size: 2em;
       margin-bottom: 0.35em;
     }
+
     .departure {
       font-size: 24px;
-      padding: .5em;
-      margin-bottom: .25em;
+      padding: 0.5em;
+      margin-bottom: 0.25em;
       border-radius: 8px;
-      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
       border: 1px solid black;
-      align-items: left;
+      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+
       text-shadow:
-  -1px -1px 0 white,
-   1px -1px 0 white,
-  -1px  1px 0 white,
-   1px  1px 0 white,
-  -2px -1px 0 white,
-   2px -1px 0 white,
-  -2px  1px 0 white,
-   2px  1px 0 white,
-  -2px -2px 0 white,
-   2px -2px 0 white,
-  -2px  2px 0 white,
-   2px  2px 0 white,
-  -3px -3px 0 white,
-   3px -3px 0 white,
-  -3px  3px 0 white,
-   3px  3px 0 white;
-  
-
+        -1px -1px 0 white,
+         1px -1px 0 white,
+        -1px  1px 0 white,
+         1px  1px 0 white,
+        -2px -1px 0 white,
+         2px -1px 0 white,
+        -2px  1px 0 white,
+         2px  1px 0 white,
+        -2px -2px 0 white,
+         2px -2px 0 white,
+        -2px  2px 0 white,
+         2px  2px 0 white,
+        -3px -3px 0 white,
+         3px -3px 0 white,
+        -3px  3px 0 white,
+         3px  3px 0 white;
     }
-    .on-time {
-  background: #ffffff;
-  border-left: 6px solid #666; /* TRMNL-friendly gray */
 
-}
-
-.delayed {
-  background: #fdd;
-  border-left: 6px solid #f44336;
-
-}
-
-.scheduled {
-  background: #ccc;
-  border-left: 6px solid black;
-
-}
-
-
-
-      border-left: 6px solid #999;
+    .departure .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0;
+      padding: 0;
     }
-    .time {
-      font-size: 24px;
+
+    .departure .time {
+      flex: none;
+      min-width: 100px;
+      font-size: 32px;
       font-weight: bold;
-        color: solid black;
-
+      color: black;
     }
-    .details {
-      font-size: 1.0em;
+
+    .departure .details {
+      flex: 1;
+      text-align: right;
+      font-size: 1em;
       color: #333;
-
     }
+
+    .on-time {
+      background: #fff;
+      border-left: 6px solid #666;
+    }
+
+    .delayed {
+      background: #fdd;
+      border-left: 6px solid #f44336;
+    }
+
+    .scheduled {
+      background: #ccc;
+      border-left: 6px solid black;
+    }
+
     .no-trains {
       font-size: 1.6em;
       color: #888;
       margin-top: 1em;
     }
+
+    .error {
+      font-size: 1.4em;
+      color: #900;
+      margin-top: 1em;
+    }
   </style>
 </head>
+
 <body>
+
   <div class="container">
     <h1>Clifton Departures</h1>
     <div id="departures"></div>
@@ -121,50 +115,178 @@
 
   <script>
     function convertTo12Hour(timeStr) {
-      const [hour, minute] = timeStr.split(":" ).map(Number);
+      if (!timeStr) {
+        return "--:--";
+      }
+
+      const [hour, minute] = timeStr.split(":").map(Number);
+
       const period = hour >= 12 ? "PM" : "AM";
       const hour12 = hour % 12 || 12;
+
       return `${hour12}:${minute.toString().padStart(2, "0")} ${period}`;
     }
 
-    async function loadDepartures() {
-      try {
-        const res = await fetch("upcoming_departures.json");
-        const data = await res.json();
 
-        const container = document.getElementById("departures");
+    async function loadDepartures() {
+      const container = document.getElementById("departures");
+
+      try {
+        /*
+          Date.now() adds a unique value to every request.
+
+          Combined with cache: "no-store", this prevents Chromium,
+          a web server, or an intermediate cache from returning an
+          older copy of upcoming_departures.json.
+        */
+
+        const response = await fetch(
+          `upcoming_departures.json?t=${Date.now()}`,
+          {
+            cache: "no-store"
+          }
+        );
+
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to load JSON. HTTP status: ${response.status}`
+          );
+        }
+
+
+        const data = await response.json();
+
+
+        console.log(
+          "Departures refreshed:",
+          new Date().toLocaleTimeString(),
+          data
+        );
+
+
+        /*
+          Only clear the old display AFTER valid JSON has been
+          received.
+
+          This way a temporary network/server problem won't
+          immediately wipe out the current departures.
+        */
+
         container.innerHTML = "";
 
-        if (data.length === 0) {
-          container.innerHTML = '<div class="no-trains">No more trains today</div>';
+
+        if (!Array.isArray(data) || data.length === 0) {
+          container.innerHTML =
+            '<div class="no-trains">No more trains today</div>';
+
           return;
         }
 
-        data.forEach((dep, index) => {
-          const div = document.createElement("div");
-          let statusText = dep.status;
 
-          if (!statusText || statusText.toLowerCase().includes("0 min") || statusText.toLowerCase().includes("0 minutes")) {
+        data.forEach((dep) => {
+          const div = document.createElement("div");
+
+
+          let statusText = dep.status || "";
+
+
+          /*
+            Convert blank status or "0 min" to On time.
+          */
+
+          const statusLower = statusText.toLowerCase();
+
+          if (
+            !statusText ||
+            statusLower.includes("0 min") ||
+            statusLower.includes("0 minutes")
+          ) {
             statusText = "On time";
           }
 
-          const statusClass = statusText?.toLowerCase().includes("late") ? "delayed" : (statusText === "On time" ? "on-time" : "scheduled");
+
+          /*
+            Determine display style.
+          */
+
+          const normalizedStatus = statusText.toLowerCase();
+
+          let statusClass = "scheduled";
+
+          if (normalizedStatus.includes("late")) {
+            statusClass = "delayed";
+          }
+          else if (normalizedStatus === "on time") {
+            statusClass = "on-time";
+          }
+
 
           div.className = `departure ${statusClass}`;
-div.innerHTML = `
-  <div class="row">
-    <div class="time">${convertTo12Hour(dep.scheduled_time)}</div>
-    <div class="details">${statusText}</div>
-  </div>
+
+
+          div.innerHTML = `
+            <div class="row">
+
+              <div class="time">
+                ${convertTo12Hour(dep.scheduled_time)}
+              </div>
+
+              <div class="details">
+                ${statusText}
+              </div>
+
+            </div>
           `;
+
+
           container.appendChild(div);
         });
-      } catch (e) {
-        document.getElementById("departures").innerText = "Failed to load departures.";
+
+      }
+      catch (error) {
+
+        console.error(
+          "Departure refresh failed:",
+          error
+        );
+
+
+        /*
+          Keep existing departures visible if possible.
+
+          Only display an error message if the screen is currently
+          empty.
+        */
+
+        if (!container.innerHTML.trim()) {
+          container.innerHTML =
+            '<div class="error">Failed to load departures.</div>';
+        }
       }
     }
 
+
+    /*
+      Load immediately when the page opens.
+    */
+
     loadDepartures();
+
+
+    /*
+      Refresh departure data every 30 seconds.
+
+      This replaces the old:
+      <meta http-equiv="refresh" content="60">
+
+      The page itself stays loaded while only the JSON is refreshed.
+    */
+
+    setInterval(loadDepartures, 30000);
+
   </script>
+
 </body>
 </html>
+```
