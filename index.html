@@ -394,45 +394,65 @@
 
     function cleanStatus(dep) {
 
-      let status =
-        dep.status || "Scheduled";
-
-      const lower =
-        status.toLowerCase();
-
-
-      if (
-        lower.includes("0 min") ||
-        lower.includes("0 minutes")
-      ) {
-        return "ON TIME";
-      }
+  const minutes =
+    minutesUntil(
+      dep.scheduled_time
+    );
 
 
-      if (
-        lower === "on time"
-      ) {
-        return "ON TIME";
-      }
+  /*
+    Once the train is within 2 minutes
+    of departure, override "Scheduled"
+    and show ALL ABOARD.
+  */
+
+  if (
+    minutes !== null &&
+    minutes <= 2
+  ) {
+    return "ALL ABOARD";
+  }
 
 
-      if (
-        lower.includes("late") ||
-        lower.includes("delay")
-      ) {
-        return status.toUpperCase();
-      }
+  let status =
+    dep.status || "Scheduled";
+
+  const lower =
+    status.toLowerCase();
 
 
-      if (
-        lower === "scheduled"
-      ) {
-        return "SCHEDULED";
-      }
+  if (
+    lower.includes("0 min") ||
+    lower.includes("0 minutes")
+  ) {
+    return "ON TIME";
+  }
 
 
-      return status.toUpperCase();
-    }
+  if (
+    lower === "on time"
+  ) {
+    return "ON TIME";
+  }
+
+
+  if (
+    lower.includes("late") ||
+    lower.includes("delay")
+  ) {
+    return status.toUpperCase();
+  }
+
+
+  if (
+    lower === "scheduled"
+  ) {
+    return "SCHEDULED";
+  }
+
+
+  return status.toUpperCase();
+}
 
 
     function countdownText(minutes) {
