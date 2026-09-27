@@ -371,29 +371,25 @@
 
     function nextTrainSecondary(dep) {
 
-      const minutes =
-        minutesUntil(
-          dep.scheduled_time
-        );
+  const minutes =
+    minutesUntil(
+      dep.scheduled_time
+    );
 
+  if (minutes === null) {
+    return "";
+  }
 
-      if (minutes === null) {
-        return "";
-      }
+  if (minutes <= 1) {
+    return "DEPARTING NOW";
+  }
 
+  if (minutes === 2) {
+    return "DEPARTS IN 2 MINUTES";
+  }
 
-      if (minutes <= 1) {
-        return "Departing now";
-      }
-
-
-      if (minutes === 2) {
-        return "Departs in 2 minutes";
-      }
-
-
-      return `Departs in ${minutes} minutes`;
-    }
+  return `DEPARTS IN ${minutes} MINUTES`;
+}
 
 
     function renderDepartures(data) {
