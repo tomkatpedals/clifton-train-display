@@ -11,25 +11,40 @@
       box-sizing: border-box;
     }
 
+    html,
     body {
+      width: 100%;
+      height: 100%;
       margin: 0;
       padding: 0;
+    }
 
+    body {
       background: white;
       color: black;
-
       font-family: Arial, Helvetica, sans-serif;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      overflow: hidden;
     }
 
     .display {
-      width: 100%;
-      max-width: 800px;
-      min-height: 480px;
+      width: calc(100% - 20px);
+      height: calc(100% - 20px);
 
-      margin: 0 auto;
-      padding: 20px 24px;
+      max-width: 780px;
+      max-height: 460px;
+
+      margin: 0;
+      padding: 18px 24px;
 
       border: 1px solid black;
+
+      display: flex;
+      flex-direction: column;
     }
 
 
@@ -44,6 +59,8 @@
 
       padding-bottom: 10px;
       border-bottom: 1px solid black;
+
+      flex-shrink: 0;
     }
 
     .title {
@@ -76,6 +93,16 @@
       font-size: 19px;
       font-weight: bold;
       letter-spacing: 1px;
+    }
+
+
+    /* =========================
+       CONTENT
+       ========================= */
+
+    #content {
+      flex: 1;
+      min-height: 0;
     }
 
 
@@ -139,7 +166,7 @@
         170px
         1fr
         150px;
-      
+
       column-gap: 12px;
 
       align-items: center;
@@ -168,11 +195,11 @@
     }
 
     .departure-countdown {
-  text-align: right;
-  font-size: 17px;
-  white-space: nowrap;
-  font-weight: bold;
-}
+      text-align: right;
+      font-size: 17px;
+      white-space: nowrap;
+      font-weight: bold;
+    }
 
 
     /* =========================
@@ -183,13 +210,15 @@
       display: flex;
       justify-content: space-between;
 
-      margin-top: 12px;
-      padding-top: 9px;
+      margin-top: 8px;
+      padding-top: 8px;
 
       border-top: 1px solid black;
 
       font-size: 11px;
       letter-spacing: 0.6px;
+
+      flex-shrink: 0;
     }
 
 
@@ -239,9 +268,11 @@
 
 
     <div id="content">
+
       <div class="message">
         Loading departures...
       </div>
+
     </div>
 
 
@@ -261,6 +292,10 @@
 
 
   <script>
+
+    const TIME_ZONE =
+      "America/New_York";
+
 
     function convertTo12Hour(timeStr) {
 
@@ -285,30 +320,74 @@
     }
 
 
+    function getEasternClockParts() {
+
+      const parts =
+        new Intl.DateTimeFormat(
+          "en-US",
+          {
+            timeZone: TIME_ZONE,
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false
+          }
+        )
+        .formatToParts(
+          new Date()
+        );
+
+
+      function getPart(type) {
+
+        return Number(
+          parts.find(
+            part =>
+              part.type === type
+          ).value
+        );
+      }
+
+
+      return {
+        hour: getPart("hour"),
+        minute: getPart("minute"),
+        second: getPart("second")
+      };
+    }
+
+
     function minutesUntil(timeStr) {
 
       if (!timeStr) {
         return null;
       }
 
+
       const [hour, minute] =
         timeStr.split(":").map(Number);
 
+
       const now =
-        new Date();
+        getEasternClockParts();
 
-      const departure =
-        new Date();
 
-      departure.setHours(
-        hour,
-        minute,
-        0,
-        0
-      );
+      const nowSeconds =
+        (now.hour * 3600) +
+        (now.minute * 60) +
+        now.second;
+
+
+      const departureSeconds =
+        (hour * 3600) +
+        (minute * 60);
+
 
       return Math.ceil(
-        (departure - now) / 60000
+        (
+          departureSeconds -
+          nowSeconds
+        ) / 60
       );
     }
 
@@ -358,49 +437,66 @@
 
     function countdownText(minutes) {
 
-  if (minutes === null) {
-    return "";
-  }
+      if (minutes === null) {
+        return "";
+      }
 
-  if (minutes <= 1) {
-    return "ALL ABOARD";
-  }
 
-  if (minutes >= 60) {
-    const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
+      if (minutes <= 1) {
+        return "ALL ABOARD";
+      }
 
-    if (mins === 0) {
-      return `${hrs} HR`;
+
+      if (minutes >= 60) {
+
+        const hrs =
+          Math.floor(
+            minutes / 60
+          );
+
+        const mins =
+          minutes % 60;
+
+
+        if (mins === 0) {
+          return `${hrs} HR`;
+        }
+
+
+        return (
+          `${hrs} HR ` +
+          `${mins} MIN`
+        );
+      }
+
+
+      return `${minutes} MIN`;
     }
 
-    return `${hrs} HR ${mins} MIN`;
-  }
-
-  return `${minutes} MIN`;
-}
 
     function nextTrainSecondary(dep) {
 
-  const minutes =
-    minutesUntil(
-      dep.scheduled_time
-    );
+      const minutes =
+        minutesUntil(
+          dep.scheduled_time
+        );
 
-  if (minutes === null) {
-    return "";
-  }
 
-  if (minutes <= 1) {
-    return "DEPARTING NOW";
-  }
+      if (minutes === null) {
+        return "";
+      }
 
-  if (minutes === 2) {
-    return "DEPARTS IN 2 MINUTES";
-  }
 
-  return `DEPARTS IN <strong>${minutes} MINUTES</strong>`;
-}
+      if (minutes <= 1) {
+        return "DEPARTING NOW";
+      }
+
+
+      return (
+        `DEPARTS IN ` +
+        `<strong>${minutes} MINUTES</strong>`
+      );
+    }
 
 
     function renderDepartures(data) {
@@ -462,40 +558,46 @@
 
         </div>
 
+
         <div class="upcoming">
       `;
 
 
       data
         .slice(1, 4)
-        .forEach(dep => {
+        .forEach(
+          dep => {
 
-          const minutes =
-            minutesUntil(
-              dep.scheduled_time
-            );
+            const minutes =
+              minutesUntil(
+                dep.scheduled_time
+              );
 
-          html += `
 
-            <div class="departure-row">
+            html += `
 
-              <div class="departure-time">
-                ${convertTo12Hour(
-                  dep.scheduled_time
-                )}
+              <div class="departure-row">
+
+                <div class="departure-time">
+                  ${convertTo12Hour(
+                    dep.scheduled_time
+                  )}
+                </div>
+
+                <div class="departure-status">
+                  ${cleanStatus(dep)}
+                </div>
+
+                <div class="departure-countdown">
+                  ${countdownText(
+                    minutes
+                  )}
+                </div>
+
               </div>
-
-              <div class="departure-status">
-                ${cleanStatus(dep)}
-              </div>
-
-              <div class="departure-countdown">
-                ${countdownText(minutes)}
-              </div>
-
-            </div>
-          `;
-        });
+            `;
+          }
+        );
 
 
       html += `
@@ -505,6 +607,29 @@
 
       content.innerHTML =
         html;
+    }
+
+
+    function updateFooterTime() {
+
+      const easternTime =
+        new Date()
+          .toLocaleTimeString(
+            "en-US",
+            {
+              timeZone: TIME_ZONE,
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true
+            }
+          )
+          .toUpperCase();
+
+
+      document.getElementById(
+        "updated"
+      ).textContent =
+        `UPDATED ${easternTime}`;
     }
 
 
@@ -533,22 +658,12 @@
           await response.json();
 
 
-        renderDepartures(data);
+        renderDepartures(
+          data
+        );
 
 
-        document.getElementById(
-          "updated"
-        ).textContent =
-          "UPDATED " +
-          new Date()
-            .toLocaleTimeString(
-              [],
-              {
-                hour: "numeric",
-                minute: "2-digit"
-              }
-            )
-            .toUpperCase();
+        updateFooterTime();
 
 
         console.log(
